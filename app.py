@@ -181,14 +181,15 @@ def inject_custom_css():
             font-size: 16px;
         }
 
-        .stButton > button {
+        .stButton > button,
+        div[data-testid="stFormSubmitButton"] button {
             width: 100%;
             margin-top: 20px;
             padding: 14px 18px;
             border: 0;
             border-radius: 8px;
             background: var(--brand);
-            color: white;
+            color: white !important;
             cursor: pointer;
             font-size: 17px;
             font-weight: 700;
@@ -196,10 +197,12 @@ def inject_custom_css():
         }
 
         .stButton > button:hover,
-        .stButton > button:focus {
+        .stButton > button:focus,
+        div[data-testid="stFormSubmitButton"] button:hover,
+        div[data-testid="stFormSubmitButton"] button:focus {
             border: 0;
             background: var(--brand-dark);
-            color: white;
+            color: white !important;
         }
 
         .model-panel,
