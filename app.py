@@ -105,9 +105,13 @@ def inject_custom_css():
             color: white;
         }
 
+        .hero-band h1 {
+            color: white !important;
+        }
+
         .hero-eyebrow {
             margin: 0 0 8px;
-            color: #c9eff7;
+            color: #c9eff7 !important;
             font-size: 13px;
             font-weight: 700;
             text-transform: uppercase;
@@ -123,7 +127,7 @@ def inject_custom_css():
         .hero-copy {
             max-width: 720px;
             margin-bottom: 0;
-            color: white;
+            color: white !important;
             line-height: 1.7;
             font-size: 16px;
         }
