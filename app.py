@@ -50,6 +50,193 @@ DEFAULT_VALUES = {
 }
 
 
+def inject_custom_css():
+    st.markdown(
+        """
+        <style>
+        :root {
+            --car-blue: #2563eb;
+            --car-blue-dark: #1e3a8a;
+            --car-blue-soft: #dbeafe;
+            --car-ink: #172033;
+            --car-muted: #64748b;
+            --car-line: #d8e1ef;
+            --car-panel: #ffffff;
+            --car-bg: #f4f8ff;
+        }
+
+        .stApp {
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 34rem),
+                linear-gradient(180deg, #f8fbff 0%, #eef5ff 48%, #ffffff 100%);
+            color: var(--car-ink);
+        }
+
+        .block-container {
+            max-width: 1180px;
+            padding-top: 2.2rem;
+            padding-bottom: 3rem;
+        }
+
+        h1, h2, h3 {
+            color: var(--car-ink);
+            letter-spacing: 0;
+        }
+
+        h1 {
+            font-size: 2.65rem;
+            font-weight: 850;
+            margin-bottom: 0.35rem;
+        }
+
+        h2, h3 {
+            font-weight: 800;
+        }
+
+        div[data-testid="stCaptionContainer"] {
+            color: var(--car-muted);
+        }
+
+        .hero-band {
+            padding: 1.35rem 1.5rem;
+            margin-bottom: 1.35rem;
+            border: 1px solid rgba(37, 99, 235, 0.16);
+            border-radius: 16px;
+            background:
+                linear-gradient(135deg, rgba(37, 99, 235, 0.13), rgba(14, 165, 233, 0.08)),
+                #ffffff;
+            box-shadow: 0 16px 38px rgba(30, 58, 138, 0.10);
+        }
+
+        .hero-eyebrow {
+            margin: 0 0 0.35rem;
+            color: var(--car-blue);
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero-copy {
+            max-width: 780px;
+            margin: 0;
+            color: #334155;
+            line-height: 1.7;
+            font-size: 1.02rem;
+        }
+
+        div[data-testid="stForm"],
+        div[data-testid="stMetric"],
+        div[data-testid="stDataFrame"],
+        div[data-testid="stAlert"] {
+            border-radius: 14px;
+        }
+
+        div[data-testid="stForm"] {
+            padding: 1.05rem 1rem 1.15rem;
+            border: 1px solid var(--car-line);
+            background: rgba(255, 255, 255, 0.90);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        div[data-testid="stNumberInput"] label p {
+            color: #22314d;
+            font-weight: 720;
+        }
+
+        div[data-testid="stNumberInput"] input {
+            border: 1px solid #d7e2f2;
+            border-radius: 10px;
+            background: #f8fbff;
+        }
+
+        .stButton > button {
+            border: 0;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--car-blue), #0ea5e9);
+            color: white;
+            font-weight: 800;
+            padding: 0.55rem 1.05rem;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.22);
+        }
+
+        .stButton > button:hover {
+            border: 0;
+            color: white;
+            background: linear-gradient(135deg, var(--car-blue-dark), var(--car-blue));
+            transform: translateY(-1px);
+        }
+
+        div[data-testid="stMetric"] {
+            padding: 1rem 1.1rem;
+            border: 1px solid rgba(37, 99, 235, 0.16);
+            background: linear-gradient(180deg, #ffffff, #f7fbff);
+            box-shadow: 0 12px 28px rgba(30, 58, 138, 0.09);
+        }
+
+        div[data-testid="stMetricLabel"] p {
+            color: var(--car-muted);
+            font-weight: 750;
+        }
+
+        div[data-testid="stMetricValue"] {
+            color: var(--car-blue-dark);
+            font-weight: 850;
+        }
+
+        .result-card {
+            min-height: 236px;
+            padding: 1.2rem;
+            border: 1px solid rgba(37, 99, 235, 0.18);
+            border-radius: 14px;
+            background:
+                linear-gradient(145deg, rgba(37, 99, 235, 0.10), rgba(14, 165, 233, 0.07)),
+                #ffffff;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .result-card p {
+            color: var(--car-muted);
+            margin: 0.25rem 0 0;
+        }
+
+        .result-value {
+            margin: 0.15rem 0 0;
+            color: var(--car-blue-dark);
+            font-size: 3.1rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .result-unit {
+            color: var(--car-blue);
+            font-weight: 800;
+        }
+
+        button[data-baseweb="tab"] {
+            border-radius: 999px;
+            padding: 0.35rem 0.85rem;
+        }
+
+        button[data-baseweb="tab"][aria-selected="true"] {
+            background: var(--car-blue-soft);
+            color: var(--car-blue-dark);
+        }
+
+        div[data-testid="stHorizontalBlock"] {
+            gap: 1.05rem;
+        }
+
+        hr {
+            border-color: #d5e2f3;
+            margin: 1.5rem 0 1.1rem;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 @st.cache_data
 def load_data():
     if DATA_PATH.exists():
@@ -271,14 +458,23 @@ def render_recent_predictions(db_error):
 
 def main():
     st.set_page_config(page_title="자동차 연비 예측", page_icon="CAR", layout="wide")
+    inject_custom_css()
 
     model, metrics, feature_importance, model_results = train_models()
     db_error = setup_database()
 
-    st.title("자동차 연비 예측")
-    st.write(
-        "자동차의 실린더 수, 배기량, 마력, 무게, 가속력, 연식을 입력하면 "
-        "배운 범위의 회귀 모델 중 가장 성능이 좋은 모델로 예상 연비(MPG)를 계산합니다."
+    st.markdown(
+        """
+        <section class="hero-band">
+            <p class="hero-eyebrow">Machine Learning Project</p>
+            <h1>자동차 연비 예측</h1>
+            <p class="hero-copy">
+                자동차의 실린더 수, 배기량, 마력, 무게, 가속력, 연식을 입력하면
+                배운 범위의 회귀 모델 중 가장 성능이 좋은 모델로 예상 연비(MPG)를 계산합니다.
+            </p>
+        </section>
+        """,
+        unsafe_allow_html=True,
     )
 
     if db_error == "disabled":
@@ -293,12 +489,26 @@ def main():
         prediction = render_prediction_form(model, db_error)
 
     with right:
-        st.subheader("예상 연비")
         if prediction is None:
-            st.metric("MPG", "-")
-            st.caption("값을 입력하고 예측 버튼을 눌러주세요.")
+            result_value = "-"
+            result_note = "값을 입력하고 예측 버튼을 눌러주세요."
+            result_unit = ""
         else:
-            st.metric("MPG", prediction)
+            result_value = prediction
+            result_note = "입력한 차량 제원 기준 예상 연비입니다."
+            result_unit = "MPG"
+
+        st.markdown(
+            f"""
+            <div class="result-card">
+                <h3>예상 연비</h3>
+                <div class="result-value">{result_value}</div>
+                <span class="result-unit">{result_unit}</span>
+                <p>{result_note}</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     st.divider()
 
