@@ -181,6 +181,17 @@ def inject_custom_css():
             font-size: 16px;
         }
 
+        div[data-testid="stNumberInput"] input:focus {
+            border-color: var(--brand) !important;
+            box-shadow: 0 0 0 1px var(--brand) !important;
+            outline: none !important;
+        }
+
+        div[data-testid="stNumberInput"] [role="tooltip"],
+        div[data-testid="stNumberInput"] div[data-baseweb="popover"] {
+            display: none !important;
+        }
+
         .stButton > button,
         div[data-testid="stFormSubmitButton"] button {
             width: 100%;
