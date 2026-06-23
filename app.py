@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import numpy as np
@@ -19,6 +20,7 @@ from db import DB_CONFIG, get_recent_predictions, init_database, save_prediction
 BASE_DIR = Path(__file__).resolve().parent
 DATA_PATH = BASE_DIR / "data" / "mpg.csv"
 DATA_URL = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/mpg.csv"
+ENABLE_DB = os.getenv("ENABLE_DB", "false").lower() == "true"
 
 FEATURES = [
     "cylinders",
@@ -153,6 +155,9 @@ def train_models():
 
 @st.cache_resource
 def setup_database():
+    if not ENABLE_DB:
+        return "disabled"
+
     try:
         init_database()
         return None
@@ -186,7 +191,9 @@ def render_prediction_form(model, db_error):
 
     prediction = predict_mpg(model, values)
 
-    if db_error:
+    if db_error == "disabled":
+        st.info("예측이 완료되었습니다. 클라우드 배포에서는 DB 저장 기능을 사용하지 않습니다.")
+    elif db_error:
         st.warning(f"예측은 완료했지만 MariaDB 저장은 건너뛰었습니다: {db_error}")
     else:
         try:
@@ -229,6 +236,10 @@ def render_feature_importance(feature_importance):
 def render_recent_predictions(db_error):
     st.subheader("최근 예측 기록")
 
+    if db_error == "disabled":
+        st.info("클라우드 배포에서는 DB 저장 기능을 사용하지 않아 최근 기록을 표시하지 않습니다.")
+        return
+
     if db_error:
         st.info("MariaDB 연결 오류가 있어 최근 예측 기록을 불러올 수 없습니다.")
         return
@@ -270,7 +281,9 @@ def main():
         "배운 범위의 회귀 모델 중 가장 성능이 좋은 모델로 예상 연비(MPG)를 계산합니다."
     )
 
-    if db_error:
+    if db_error == "disabled":
+        st.caption("클라우드 배포용으로 DB 저장 기능은 꺼져 있습니다.")
+    elif db_error:
         st.error(f"MariaDB 연결 오류: {db_error}")
     else:
         st.caption(f"MariaDB `{DB_CONFIG['database']}` 데이터베이스에 예측 기록을 저장합니다.")

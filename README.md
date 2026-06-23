@@ -1,7 +1,7 @@
 # 자동차 연비 예측 Streamlit 앱
 
 자동차 제원 데이터를 사용해 예상 연비(MPG)를 예측하는 Streamlit 앱입니다.
-여러 회귀 모델을 비교한 뒤 RMSE가 가장 낮은 모델로 예측하고, 예측 기록은 MariaDB에 저장합니다.
+여러 회귀 모델을 비교한 뒤 RMSE가 가장 낮은 모델로 예측합니다.
 
 ## 실행 방법
 
@@ -30,8 +30,8 @@ http://내컴퓨터IP:8501
 
 ## MariaDB 연결
 
-앱 실행 시 `project1_car` 데이터베이스와 `predictions` 테이블을 자동으로 생성합니다.
-기본 연결 정보는 `db.py`에 정의되어 있습니다.
+Streamlit Cloud에서는 개인 PC의 MariaDB에 접속할 수 없기 때문에 DB 저장 기능은 기본으로 꺼져 있습니다.
+로컬 PC에서 MariaDB 저장 기능까지 사용하려면 실행 전에 `ENABLE_DB`를 켭니다.
 
 ```text
 host: 127.0.0.1
@@ -43,6 +43,7 @@ database: project1_car
 비밀번호를 바꿔야 하면 실행 전에 환경 변수를 설정합니다.
 
 ```powershell
+$env:ENABLE_DB="true"
 $env:DB_PASSWORD="비밀번호"
 streamlit run app.py
 ```
