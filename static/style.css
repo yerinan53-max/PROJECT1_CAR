@@ -136,6 +136,35 @@ button:hover {
   font-weight: 700;
 }
 
+.best-model {
+  margin-bottom: 12px;
+  color: #162033;
+}
+
+.small-text {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.db-status {
+  display: inline-block;
+  margin-bottom: 16px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.db-status.good {
+  background: #e7f5ec;
+  color: #17623a;
+}
+
+.db-status.bad {
+  background: #fdecea;
+  color: #9f1d15;
+}
+
 .metric-list {
   display: grid;
   gap: 12px;
@@ -191,6 +220,30 @@ button:hover {
   min-width: 2px;
   border-radius: 999px;
   background: #1f7a8c;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 780px;
+}
+
+th,
+td {
+  padding: 12px;
+  border-bottom: 1px solid #e6edf5;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  background: #f4f7fb;
+  color: #4d5f78;
+  font-size: 14px;
 }
 
 @media (max-width: 760px) {

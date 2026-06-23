@@ -14,7 +14,7 @@
           <h1>자동차 연비 예측</h1>
           <p class="lead">
             자동차의 실린더 수, 배기량, 마력, 무게, 가속력, 연식을 입력하면
-            선형회귀 모델이 예상 연비(MPG)를 계산합니다.
+            여러 회귀 모델 중 가장 성능이 좋은 모델이 예상 연비(MPG)를 계산합니다.
           </p>
         </div>
         <div class="score-box">
@@ -57,6 +57,18 @@
 
         <section class="panel">
           <h2>모델 성능</h2>
+          <p class="best-model">선택된 모델: <strong>{{ metrics.best_model_name }}</strong></p>
+          <p class="db-status {% if db_error %}bad{% else %}good{% endif %}">
+            MariaDB:
+            {% if db_error %}
+              연결 오류
+            {% else %}
+              {{ db_name }} 연결됨
+            {% endif %}
+          </p>
+          {% if db_error %}
+            <p class="error small-text">{{ db_error }}</p>
+          {% endif %}
           <div class="metric-list">
             <div>
               <span>R² 점수</span>
@@ -73,26 +85,102 @@
           </div>
           <p class="note">
             학습 데이터 {{ metrics.train_count }}개, 테스트 데이터 {{ metrics.test_count }}개로
-            모델을 평가했습니다.
+            여러 모델을 비교 평가했습니다.
           </p>
         </section>
       </section>
 
       <section class="panel">
+        <h2>모델별 성능 비교</h2>
+        <p class="note">
+          RMSE가 낮을수록 예측 오차가 작고, R² 점수가 높을수록 모델 설명력이 좋습니다.
+          현재 앱은 RMSE가 가장 낮은 모델을 최종 예측 모델로 사용합니다.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>모델</th>
+                <th>R²</th>
+                <th>MAE</th>
+                <th>RMSE</th>
+                <th>선택 여부</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in model_results %}
+                <tr>
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.r2 }}</td>
+                  <td>{{ item.mae }}</td>
+                  <td>{{ item.rmse }}</td>
+                  <td>
+                    {% if item.name == metrics.best_model_name %}
+                      <strong>최종 모델</strong>
+                    {% else %}
+                      비교 모델
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>최근 예측 기록</h2>
+        {% if recent_predictions %}
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>시간</th>
+                  <th>실린더</th>
+                  <th>배기량</th>
+                  <th>마력</th>
+                  <th>무게</th>
+                  <th>가속력</th>
+                  <th>연식</th>
+                  <th>예측 MPG</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in recent_predictions %}
+                  <tr>
+                    <td>{{ row.created_at }}</td>
+                    <td>{{ row.cylinders }}</td>
+                    <td>{{ row.displacement }}</td>
+                    <td>{{ row.horsepower }}</td>
+                    <td>{{ row.weight }}</td>
+                    <td>{{ row.acceleration }}</td>
+                    <td>{{ row.model_year }}</td>
+                    <td><strong>{{ row.predicted_mpg }}</strong></td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="note">아직 저장된 예측 기록이 없습니다. 값을 입력하고 예측 버튼을 눌러보세요.</p>
+        {% endif %}
+      </section>
+
+      <section class="panel">
         <h2>특성 영향 분석</h2>
         <p class="note">
-          회귀 계수의 절댓값이 클수록 예측 결과에 더 크게 반영됩니다.
-          계수가 음수이면 해당 값이 커질수록 연비가 낮아지는 경향을 뜻합니다.
+          최종 선택된 모델 기준의 특성 영향도입니다.
+          값이 클수록 해당 변수가 연비 예측에 더 크게 반영됩니다.
         </p>
         <div class="coef-list">
-          {% for item in coefficients %}
+          {% for item in feature_importance %}
             <div class="coef-row">
               <div>
                 <strong>{{ item.label }}</strong>
-                <span>계수 {{ "%.4f"|format(item.coefficient) }}</span>
+                <span>중요도 {{ "%.4f"|format(item.importance) }}</span>
               </div>
               <div class="bar-wrap">
-                <div class="bar" style="width: {{ (item.absolute / coefficients[0].absolute * 100)|round }}%"></div>
+                <div class="bar" style="width: {{ item.percent }}%"></div>
               </div>
             </div>
           {% endfor %}
