@@ -536,27 +536,34 @@ def render_model_summary(metrics, model_results):
 
 
 def render_feature_importance(feature_importance):
-    st.markdown('<div class="feature-panel"><h3>특성 영향 분석</h3>', unsafe_allow_html=True)
-    st.markdown(
-        '<p class="note">최종 선택된 모델 기준의 특성 영향도입니다. 값이 클수록 해당 변수가 연비 예측에 더 크게 반영됩니다.</p>',
-        unsafe_allow_html=True,
-    )
     max_value = feature_importance["absolute"].max() or 1
     rows = []
     for _, row in feature_importance.iterrows():
         percent = int(round((row["absolute"] / max_value) * 100))
         rows.append(
-            f"""
-            <div class="feature-row">
-                <div>
-                    <strong>{row['label']}</strong>
-                    <span>중요도 {row['importance']:.4f}</span>
-                </div>
-                <div class="bar-wrap"><div class="bar" style="width: {percent}%"></div></div>
-            </div>
-            """
+            (
+                '<div class="feature-row">'
+                "<div>"
+                f"<strong>{row['label']}</strong>"
+                f"<span>중요도 {row['importance']:.4f}</span>"
+                "</div>"
+                f'<div class="bar-wrap"><div class="bar" style="width: {percent}%"></div></div>'
+                "</div>"
+            )
         )
-    st.markdown('<div class="feature-list">' + ''.join(rows) + '</div></div>', unsafe_allow_html=True)
+
+    st.markdown(
+        (
+            '<div class="feature-panel">'
+            "<h3>특성 영향 분석</h3>"
+            '<p class="note">최종 선택된 모델 기준의 특성 영향도입니다. '
+            "값이 클수록 해당 변수가 연비 예측에 더 크게 반영됩니다.</p>"
+            '<div class="feature-list">'
+            + "".join(rows)
+            + "</div></div>"
+        ),
+        unsafe_allow_html=True,
+    )
 
 
 def render_recent_predictions(db_error):
