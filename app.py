@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-import altair as alt
 import numpy as np
 import pandas as pd
 import pymysql
@@ -114,12 +113,41 @@ def inject_custom_css():
             text-transform: uppercase;
         }
 
+        .hero-band {
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 24px;
+            align-items: stretch;
+        }
+
         .hero-copy {
-            max-width: 760px;
+            max-width: 720px;
             margin-bottom: 0;
             color: white;
             line-height: 1.7;
             font-size: 16px;
+        }
+
+        .hero-score {
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            text-align: center;
+        }
+
+        .hero-score span,
+        .hero-score small {
+            color: #d9f7ff;
+        }
+
+        .hero-score strong {
+            display: block;
+            color: white;
+            font-size: 56px;
+            line-height: 1.1;
         }
 
         div[data-testid="stForm"],
@@ -170,36 +198,62 @@ def inject_custom_css():
             color: white;
         }
 
-        .result-card {
-            min-height: 100%;
+        .model-panel,
+        .feature-panel {
             padding: 24px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: white;
         }
 
-        .result-card h3 {
+        .model-panel h3,
+        .feature-panel h3 {
             margin-bottom: 18px;
             font-size: 22px;
         }
 
-        .result-value {
-            display: block;
-            margin: 4px 0 0;
+        .best-model {
+            margin-bottom: 12px;
             color: var(--ink);
-            font-size: 56px;
-            font-weight: 800;
-            line-height: 1;
         }
 
-        .result-unit {
-            display: block;
-            margin-top: 4px;
-            color: var(--teal);
-            font-size: 14px;
+        .db-pill {
+            display: inline-block;
+            margin-bottom: 16px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: #e7f5ec;
+            color: #17623a;
+            font-size: 13px;
             font-weight: 700;
         }
 
-        .result-card p {
-            margin-top: 18px;
+        .metric-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px;
+            border-radius: 8px;
+            background: #f4f7fb;
+        }
+
+        .metric-row span,
+        .feature-row span,
+        .note {
             color: var(--muted);
+        }
+
+        .metric-row strong {
+            color: var(--ink);
+        }
+
+        .note {
+            margin: 16px 0 0;
             line-height: 1.6;
         }
 
@@ -244,9 +298,46 @@ def inject_custom_css():
             margin: 24px 0;
         }
 
+        .feature-list {
+            display: grid;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .feature-row {
+            display: grid;
+            grid-template-columns: 210px 1fr;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .feature-row strong,
+        .feature-row span {
+            display: block;
+        }
+
+        .bar-wrap {
+            height: 14px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #edf2f7;
+        }
+
+        .bar {
+            height: 100%;
+            min-width: 2px;
+            border-radius: 999px;
+            background: var(--teal);
+        }
+
         @media (max-width: 760px) {
             .block-container {
                 padding: 24px 16px;
+            }
+
+            .hero-band,
+            .feature-row {
+                grid-template-columns: 1fr;
             }
 
             .hero-band {
@@ -370,32 +461,6 @@ def train_models(model_version=MODEL_VERSION):
     return best_model, metrics, feature_importance, pd.DataFrame(model_results)
 
 
-def render_horizontal_bar_chart(df, label_column, value_column, color="#2563eb"):
-    chart = (
-        alt.Chart(df)
-        .mark_bar(cornerRadiusTopRight=6, cornerRadiusBottomRight=6, color=color)
-        .encode(
-            x=alt.X(
-                f"{value_column}:Q",
-                title=value_column,
-                axis=alt.Axis(grid=True, labelColor="#475569", titleColor="#334155"),
-            ),
-            y=alt.Y(
-                f"{label_column}:N",
-                title=None,
-                sort="-x",
-                axis=alt.Axis(labelAngle=0, labelColor="#172033", labelFontSize=13),
-            ),
-            tooltip=[
-                alt.Tooltip(f"{label_column}:N", title=label_column),
-                alt.Tooltip(f"{value_column}:Q", title=value_column, format=".3f"),
-            ],
-        )
-        .properties(height=max(220, len(df) * 48))
-    )
-    st.altair_chart(chart, use_container_width=True)
-
-
 @st.cache_resource
 def setup_database():
     if not ENABLE_DB:
@@ -449,31 +514,49 @@ def render_prediction_form(model, db_error):
 
 
 def render_model_summary(metrics, model_results):
-    st.subheader("모델 성능")
-    st.write(f"최종 선택 모델: **{metrics['best_model_name']}**")
-
-    col1, col2, col3 = st.columns(3)
-    col1.metric("R2", metrics["R2"])
-    col2.metric("MAE", metrics["MAE"])
-    col3.metric("RMSE", metrics["RMSE"])
-
-    st.caption(
-        f"학습 데이터 {metrics['train_count']}개, 테스트 데이터 {metrics['test_count']}개로 "
-        "배운 범위의 회귀 모델을 비교했습니다. RMSE가 가장 낮은 모델을 최종 예측 모델로 사용합니다."
+    st.markdown(
+        f"""
+        <div class="model-panel">
+            <h3>모델 성능</h3>
+            <p class="best-model">선택된 모델: <strong>{metrics['best_model_name']}</strong></p>
+            <span class="db-pill">Streamlit Cloud 배포용</span>
+            <div class="metric-list">
+                <div class="metric-row"><span>R² 점수</span><strong>{metrics['R2']}</strong></div>
+                <div class="metric-row"><span>MAE</span><strong>{metrics['MAE']}</strong></div>
+                <div class="metric-row"><span>RMSE</span><strong>{metrics['RMSE']}</strong></div>
+            </div>
+            <p class="note">
+                학습 데이터 {metrics['train_count']}개, 테스트 데이터 {metrics['test_count']}개로
+                배운 범위의 회귀 모델을 비교 평가했습니다.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
-
-    st.dataframe(model_results, use_container_width=True, hide_index=True)
-    render_horizontal_bar_chart(model_results, "모델", "RMSE")
 
 
 def render_feature_importance(feature_importance):
-    st.subheader("특성 영향 분석")
-
-    chart_df = feature_importance[["label", "importance"]].rename(
-        columns={"label": "특성", "importance": "중요도"}
+    st.markdown('<div class="feature-panel"><h3>특성 영향 분석</h3>', unsafe_allow_html=True)
+    st.markdown(
+        '<p class="note">최종 선택된 모델 기준의 특성 영향도입니다. 값이 클수록 해당 변수가 연비 예측에 더 크게 반영됩니다.</p>',
+        unsafe_allow_html=True,
     )
-    st.dataframe(chart_df, use_container_width=True, hide_index=True)
-    render_horizontal_bar_chart(chart_df, "특성", "중요도", color="#0ea5e9")
+    max_value = feature_importance["absolute"].max() or 1
+    rows = []
+    for _, row in feature_importance.iterrows():
+        percent = int(round((row["absolute"] / max_value) * 100))
+        rows.append(
+            f"""
+            <div class="feature-row">
+                <div>
+                    <strong>{row['label']}</strong>
+                    <span>중요도 {row['importance']:.4f}</span>
+                </div>
+                <div class="bar-wrap"><div class="bar" style="width: {percent}%"></div></div>
+            </div>
+            """
+        )
+    st.markdown('<div class="feature-list">' + ''.join(rows) + '</div></div>', unsafe_allow_html=True)
 
 
 def render_recent_predictions(db_error):
@@ -519,15 +602,26 @@ def main():
     model, metrics, feature_importance, model_results = train_models()
     db_error = setup_database()
 
+    last_prediction = st.session_state.get("last_prediction")
+    hero_value = "?" if last_prediction is None else last_prediction
+    hero_unit = "값을 입력해보세요" if last_prediction is None else "MPG"
+
     st.markdown(
-        """
+        f"""
         <section class="hero-band">
-            <p class="hero-eyebrow">Machine Learning Project</p>
-            <h1>자동차 연비 예측</h1>
-            <p class="hero-copy">
-                자동차의 실린더 수, 배기량, 마력, 무게, 가속력, 연식을 입력하면
-                배운 범위의 회귀 모델 중 가장 성능이 좋은 모델로 예상 연비(MPG)를 계산합니다.
-            </p>
+            <div>
+                <p class="hero-eyebrow">Linear Regression Project</p>
+                <h1>자동차 연비 예측</h1>
+                <p class="hero-copy">
+                    자동차의 실린더 수, 배기량, 마력, 무게, 가속력, 연식을 입력하면
+                    여러 회귀 모델 중 가장 성능이 좋은 모델이 예상 연비(MPG)를 계산합니다.
+                </p>
+            </div>
+            <div class="hero-score">
+                <span>예상 연비</span>
+                <strong>{hero_value}</strong>
+                <small>{hero_unit}</small>
+            </div>
         </section>
         """,
         unsafe_allow_html=True,
@@ -540,41 +634,23 @@ def main():
     else:
         st.caption(f"MariaDB `{DB_CONFIG['database']}` 데이터베이스에 예측 기록을 저장합니다.")
 
-    left, right = st.columns([1, 1])
+    left, right = st.columns([1.5, 1])
     with left:
         prediction = render_prediction_form(model, db_error)
+        if prediction is not None:
+            st.session_state["last_prediction"] = prediction
 
     with right:
-        if prediction is None:
-            result_value = "-"
-            result_note = "값을 입력하고 예측 버튼을 눌러주세요."
-            result_unit = ""
-        else:
-            result_value = prediction
-            result_note = "입력한 차량 제원 기준 예상 연비입니다."
-            result_unit = "MPG"
-
-        st.markdown(
-            f"""
-            <div class="result-card">
-                <h3>예상 연비</h3>
-                <div class="result-value">{result_value}</div>
-                <span class="result-unit">{result_unit}</span>
-                <p>{result_note}</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        render_model_summary(metrics, model_results)
 
     st.divider()
 
-    tab1, tab2, tab3 = st.tabs(["모델 비교", "특성 분석", "최근 기록"])
-    with tab1:
-        render_model_summary(metrics, model_results)
-    with tab2:
-        render_feature_importance(feature_importance)
-    with tab3:
-        render_recent_predictions(db_error)
+    st.subheader("모델별 성능 비교")
+    st.caption("RMSE가 낮을수록 예측 오차가 작고, R² 점수가 높을수록 모델 설명력이 좋습니다.")
+    st.dataframe(model_results, use_container_width=True, hide_index=True)
+
+    render_recent_predictions(db_error)
+    render_feature_importance(feature_importance)
 
 
 if __name__ == "__main__":
