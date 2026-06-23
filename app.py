@@ -187,9 +187,25 @@ def inject_custom_css():
             outline: none !important;
         }
 
+        div[data-testid="stNumberInput"] div[data-baseweb="input"],
+        div[data-testid="stNumberInput"] div[data-baseweb="input"]:focus,
+        div[data-testid="stNumberInput"] div[data-baseweb="input"]:focus-within {
+            border-color: var(--field-line) !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        div[data-testid="stNumberInput"] div[data-baseweb="input"]:focus-within {
+            border-color: var(--brand) !important;
+        }
+
+        div[data-testid="stNumberInput"] [data-testid="InputInstructions"],
+        div[data-testid="stNumberInput"] [aria-live="polite"],
         div[data-testid="stNumberInput"] [role="tooltip"],
         div[data-testid="stNumberInput"] div[data-baseweb="popover"] {
             display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
         }
 
         .stButton > button,
