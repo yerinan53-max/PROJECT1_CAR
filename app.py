@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import altair as alt
 import numpy as np
 import pandas as pd
 import pymysql
@@ -21,6 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA_PATH = BASE_DIR / "data" / "mpg.csv"
 DATA_URL = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/mpg.csv"
 ENABLE_DB = os.getenv("ENABLE_DB", "false").lower() == "true"
+MODEL_VERSION = "no-gradient-boosting-v2"
 
 FEATURES = [
     "cylinders",
@@ -298,7 +300,7 @@ def get_feature_importance(best_model):
 
 
 @st.cache_resource
-def train_models():
+def train_models(model_version=MODEL_VERSION):
     df = load_data()
     X = df[FEATURES]
     y = df["mpg"]
@@ -338,6 +340,32 @@ def train_models():
     }
 
     return best_model, metrics, feature_importance, pd.DataFrame(model_results)
+
+
+def render_horizontal_bar_chart(df, label_column, value_column, color="#2563eb"):
+    chart = (
+        alt.Chart(df)
+        .mark_bar(cornerRadiusTopRight=6, cornerRadiusBottomRight=6, color=color)
+        .encode(
+            x=alt.X(
+                f"{value_column}:Q",
+                title=value_column,
+                axis=alt.Axis(grid=True, labelColor="#475569", titleColor="#334155"),
+            ),
+            y=alt.Y(
+                f"{label_column}:N",
+                title=None,
+                sort="-x",
+                axis=alt.Axis(labelAngle=0, labelColor="#172033", labelFontSize=13),
+            ),
+            tooltip=[
+                alt.Tooltip(f"{label_column}:N", title=label_column),
+                alt.Tooltip(f"{value_column}:Q", title=value_column, format=".3f"),
+            ],
+        )
+        .properties(height=max(220, len(df) * 48))
+    )
+    st.altair_chart(chart, use_container_width=True)
 
 
 @st.cache_resource
@@ -407,7 +435,7 @@ def render_model_summary(metrics, model_results):
     )
 
     st.dataframe(model_results, use_container_width=True, hide_index=True)
-    st.bar_chart(model_results.set_index("모델")["RMSE"])
+    render_horizontal_bar_chart(model_results, "모델", "RMSE")
 
 
 def render_feature_importance(feature_importance):
@@ -417,7 +445,7 @@ def render_feature_importance(feature_importance):
         columns={"label": "특성", "importance": "중요도"}
     )
     st.dataframe(chart_df, use_container_width=True, hide_index=True)
-    st.bar_chart(chart_df.set_index("특성")["중요도"])
+    render_horizontal_bar_chart(chart_df, "특성", "중요도", color="#0ea5e9")
 
 
 def render_recent_predictions(db_error):
