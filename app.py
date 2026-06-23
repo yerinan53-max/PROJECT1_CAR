@@ -1,3 +1,4 @@
+import html
 import os
 from pathlib import Path
 
@@ -364,6 +365,63 @@ def inject_custom_css():
             background: var(--teal);
         }
 
+        .section-panel {
+            margin-top: 0;
+            padding: 24px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: white;
+        }
+
+        .section-panel + .section-panel,
+        .section-panel + .feature-panel {
+            margin-top: 0;
+        }
+
+        .section-panel h3 {
+            margin-bottom: 18px;
+            font-size: 22px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin-top: 14px;
+        }
+
+        .clean-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 760px;
+            color: var(--ink);
+            font-size: 15px;
+        }
+
+        .clean-table th,
+        .clean-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e6edf5;
+            text-align: left;
+            white-space: nowrap;
+            color: var(--ink);
+        }
+
+        .clean-table th {
+            background: #f4f7fb;
+            color: #4d5f78;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .clean-table strong {
+            color: var(--ink);
+        }
+
+        .empty-note {
+            margin-top: 12px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
         @media (max-width: 760px) {
             .block-container {
                 padding: 24px 16px;
@@ -600,15 +658,77 @@ def render_feature_importance(feature_importance):
     )
 
 
-def render_recent_predictions(db_error):
-    st.subheader("최근 예측 기록")
+def format_cell(value):
+    if isinstance(value, float):
+        return f"{value:.3f}".rstrip("0").rstrip(".")
+    return html.escape(str(value))
 
+
+def render_html_table(headers, rows):
+    header_html = "".join(f"<th>{html.escape(header)}</th>" for header in headers)
+    body_rows = []
+    for row in rows:
+        cells = "".join(f"<td>{cell}</td>" for cell in row)
+        body_rows.append(f"<tr>{cells}</tr>")
+    return (
+        '<div class="table-wrap"><table class="clean-table">'
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{''.join(body_rows)}</tbody>"
+        "</table></div>"
+    )
+
+
+def render_model_comparison(model_results, best_model_name):
+    rows = []
+    for _, row in model_results.iterrows():
+        model_name = str(row["모델"])
+        selected = "<strong>최종 모델</strong>" if model_name == best_model_name else "비교 모델"
+        rows.append(
+            [
+                html.escape(model_name),
+                format_cell(row["R2"]),
+                format_cell(row["MAE"]),
+                format_cell(row["RMSE"]),
+                selected,
+            ]
+        )
+
+    st.markdown(
+        (
+            '<div class="section-panel">'
+            "<h3>모델별 성능 비교</h3>"
+            '<p class="note">RMSE가 낮을수록 예측 오차가 작고, R² 점수가 높을수록 모델 설명력이 좋습니다. '
+            "현재 앱은 RMSE가 가장 낮은 모델을 최종 예측 모델로 사용합니다.</p>"
+            + render_html_table(["모델", "R²", "MAE", "RMSE", "선택 여부"], rows)
+            + "</div>"
+        ),
+        unsafe_allow_html=True,
+    )
+
+
+def render_recent_predictions(db_error):
     if db_error == "disabled":
-        st.info("클라우드 배포에서는 DB 저장 기능을 사용하지 않아 최근 기록을 표시하지 않습니다.")
+        st.markdown(
+            (
+                '<div class="section-panel">'
+                "<h3>최근 예측 기록</h3>"
+                '<p class="empty-note">클라우드 배포에서는 DB 저장 기능을 사용하지 않아 최근 기록을 표시하지 않습니다.</p>'
+                "</div>"
+            ),
+            unsafe_allow_html=True,
+        )
         return
 
     if db_error:
-        st.info("MariaDB 연결 오류가 있어 최근 예측 기록을 불러올 수 없습니다.")
+        st.markdown(
+            (
+                '<div class="section-panel">'
+                "<h3>최근 예측 기록</h3>"
+                '<p class="empty-note">MariaDB 연결 오류가 있어 최근 예측 기록을 불러올 수 없습니다.</p>'
+                "</div>"
+            ),
+            unsafe_allow_html=True,
+        )
         return
 
     try:
@@ -618,22 +738,44 @@ def render_recent_predictions(db_error):
         return
 
     if not rows:
-        st.info("아직 저장된 예측 기록이 없습니다.")
+        st.markdown(
+            (
+                '<div class="section-panel">'
+                "<h3>최근 예측 기록</h3>"
+                '<p class="empty-note">아직 저장된 예측 기록이 없습니다. 값을 입력하고 예측 버튼을 눌러보세요.</p>'
+                "</div>"
+            ),
+            unsafe_allow_html=True,
+        )
         return
 
-    df = pd.DataFrame(rows).rename(
-        columns={
-            "created_at": "시간",
-            "cylinders": "실린더",
-            "displacement": "배기량",
-            "horsepower": "마력",
-            "weight": "무게",
-            "acceleration": "가속력",
-            "model_year": "연식",
-            "predicted_mpg": "예측 MPG",
-        }
+    table_rows = []
+    for row in rows:
+        table_rows.append(
+            [
+                html.escape(str(row["created_at"])),
+                format_cell(row["cylinders"]),
+                format_cell(row["displacement"]),
+                format_cell(row["horsepower"]),
+                format_cell(row["weight"]),
+                format_cell(row["acceleration"]),
+                format_cell(row["model_year"]),
+                f"<strong>{format_cell(row['predicted_mpg'])}</strong>",
+            ]
+        )
+
+    st.markdown(
+        (
+            '<div class="section-panel">'
+            "<h3>최근 예측 기록</h3>"
+            + render_html_table(
+                ["시간", "실린더", "배기량", "마력", "무게", "가속력", "연식", "예측 MPG"],
+                table_rows,
+            )
+            + "</div>"
+        ),
+        unsafe_allow_html=True,
     )
-    st.dataframe(df.drop(columns=["id"], errors="ignore"), use_container_width=True, hide_index=True)
 
 
 def main():
@@ -686,10 +828,7 @@ def main():
 
     st.divider()
 
-    st.subheader("모델별 성능 비교")
-    st.caption("RMSE가 낮을수록 예측 오차가 작고, R² 점수가 높을수록 모델 설명력이 좋습니다.")
-    st.dataframe(model_results, use_container_width=True, hide_index=True)
-
+    render_model_comparison(model_results, metrics["best_model_name"])
     render_recent_predictions(db_error)
     render_feature_importance(feature_importance)
 
