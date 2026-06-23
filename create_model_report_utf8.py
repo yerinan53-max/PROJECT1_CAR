@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -10,7 +10,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, RGBColor
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
@@ -53,7 +53,6 @@ def build_models():
             n_estimators=300,
             max_depth=8,
         ),
-        "그래디언트부스팅": GradientBoostingRegressor(random_state=42),
         "KNN 회귀": make_pipeline(
             StandardScaler(),
             KNeighborsRegressor(n_neighbors=5),
@@ -296,7 +295,7 @@ def main():
     for item in [
         "자동차 연비는 차량 유지비, 에너지 소비량, 환경 부담과 직접적으로 연결되는 중요한 지표이다.",
         "같은 데이터라도 모델 종류에 따라 예측 성능이 달라질 수 있으므로 여러 회귀 모델을 비교하는 과정이 필요하다.",
-        "본 프로젝트는 선형회귀, 의사결정나무, 랜덤포레스트, 그래디언트부스팅, KNN 회귀 모델을 학습시켜 성능을 비교하였다.",
+        "본 프로젝트는 선형회귀, 의사결정나무, 랜덤포레스트, KNN 회귀 모델을 학습시켜 성능을 비교하였다.",
         "비교 결과 RMSE가 가장 낮은 모델을 최종 예측 모델로 선택하고, Flask 웹 화면에서 사용자 입력값에 대한 예상 연비를 출력하도록 구현하였다.",
     ]:
         add_bullet(doc, item)
@@ -307,7 +306,7 @@ def main():
         [
             ["과제구분", "내용"],
             ["데이터", "Auto MPG 공개 데이터셋 수집 및 전처리"],
-            ["모델 학습", "선형회귀, 의사결정나무, 랜덤포레스트, 그래디언트부스팅, KNN 회귀 학습"],
+            ["모델 학습", "선형회귀, 의사결정나무, 랜덤포레스트, KNN 회귀 학습"],
             ["모델 평가", "R², MAE, RMSE를 기준으로 모델별 성능 비교"],
             ["최종 모델", f"RMSE 기준 최종 선택 모델: {best_name}"],
             ["웹 프로토타입", "Flask 입력 화면, 최종 모델 예측, 모델별 성능 비교 표시"],
@@ -381,7 +380,6 @@ def main():
             ["선형회귀", "독립변수와 종속변수 사이의 선형 관계를 학습하는 기본 회귀 모델"],
             ["의사결정나무", "조건 분기를 통해 데이터를 나누며 예측하는 트리 기반 모델"],
             ["랜덤포레스트", "여러 개의 결정나무를 앙상블하여 예측 안정성을 높인 모델"],
-            ["그래디언트부스팅", "이전 모델의 오차를 보완하며 순차적으로 학습하는 앙상블 모델"],
             ["KNN 회귀", "입력값과 가까운 이웃 데이터들의 평균을 활용해 예측하는 모델"],
         ],
     )
@@ -466,7 +464,7 @@ def main():
     add_heading(doc, "6. 향후 발전 방향", 2)
     for item in [
         "제조사, 차량명, 국가(origin) 등 범주형 변수를 추가하면 더 정교한 예측이 가능하다.",
-        "모델별 하이퍼파라미터 튜닝을 추가하면 랜덤포레스트나 그래디언트부스팅의 성능을 더 개선할 수 있다.",
+        "모델별 하이퍼파라미터 튜닝을 추가하면 랜덤포레스트나 KNN 회귀의 성능을 더 개선할 수 있다.",
         "MariaDB에 저장된 예측 기록을 활용해 사용자 입력 패턴과 예측 결과 변화도 시각화할 수 있다.",
     ]:
         add_bullet(doc, item)

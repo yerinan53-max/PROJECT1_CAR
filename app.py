@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pymysql
 import streamlit as st
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
@@ -69,7 +69,6 @@ def build_models():
             n_estimators=300,
             max_depth=8,
         ),
-        "그래디언트 부스팅": GradientBoostingRegressor(random_state=42),
         "KNN 회귀": make_pipeline(
             StandardScaler(),
             KNeighborsRegressor(n_neighbors=5),
@@ -210,7 +209,7 @@ def render_model_summary(metrics, model_results):
 
     st.caption(
         f"학습 데이터 {metrics['train_count']}개, 테스트 데이터 {metrics['test_count']}개로 "
-        "여러 회귀 모델을 비교했습니다. RMSE가 가장 낮은 모델을 최종 예측 모델로 사용합니다."
+        "배운 범위의 회귀 모델을 비교했습니다. RMSE가 가장 낮은 모델을 최종 예측 모델로 사용합니다."
     )
 
     st.dataframe(model_results, use_container_width=True, hide_index=True)
@@ -268,7 +267,7 @@ def main():
     st.title("자동차 연비 예측")
     st.write(
         "자동차의 실린더 수, 배기량, 마력, 무게, 가속력, 연식을 입력하면 "
-        "여러 회귀 모델 중 가장 성능이 좋은 모델로 예상 연비(MPG)를 계산합니다."
+        "배운 범위의 회귀 모델 중 가장 성능이 좋은 모델로 예상 연비(MPG)를 계산합니다."
     )
 
     if db_error:
