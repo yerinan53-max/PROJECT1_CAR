@@ -274,26 +274,37 @@ def save_rmse_comparison(results, best_model_name):
     return path
 
 
+def safe_chart_name(model_name):
+    replacements = {
+        "선형회귀": "linear_regression",
+        "의사결정나무": "decision_tree",
+        "랜덤 포레스트": "random_forest",
+        "KNN 회귀": "knn_regression",
+    }
+    return replacements.get(model_name, model_name.replace(" ", "_").lower())
+
+
 def save_prediction_comparison(predictions, y_test):
     min_value = min(y_test.min(), *(prediction.min() for prediction in predictions.values()))
     max_value = max(y_test.max(), *(prediction.max() for prediction in predictions.values()))
 
-    fig, axes = plt.subplots(2, 2, figsize=(9.2, 7.0))
-    axes = axes.flatten()
-    for ax, (name, y_pred) in zip(axes, predictions.items()):
+    chart_paths = {}
+    for name, y_pred in predictions.items():
+        fig, ax = plt.subplots(figsize=(6.4, 4.6))
         ax.scatter(y_test, y_pred, color="#1769aa", alpha=0.72, s=24)
         ax.plot([min_value, max_value], [min_value, max_value], "--", color="#b3261e")
-        ax.set_title(name)
+        ax.set_title(f"{name} 실제값/예측값 비교")
         ax.set_xlabel("실제 MPG")
         ax.set_ylabel("예측 MPG")
         ax.grid(alpha=0.22)
+        fig.tight_layout()
 
-    fig.suptitle("모델별 실제값과 예측값 비교", fontsize=14)
-    fig.tight_layout()
-    path = ASSET_DIR / "final_prediction_comparison.png"
-    fig.savefig(path, dpi=180)
-    plt.close(fig)
-    return path
+        path = ASSET_DIR / f"final_prediction_{safe_chart_name(name)}.png"
+        fig.savefig(path, dpi=180)
+        plt.close(fig)
+        chart_paths[name] = path
+
+    return chart_paths
 
 
 def save_feature_importance(importance, best_model_name):
@@ -321,7 +332,7 @@ def create_charts(df, predictions, results, best_model_name, y_test, importance)
         "mpg": save_mpg_distribution(df),
         "correlation": save_correlation_heatmap(df),
         "rmse": save_rmse_comparison(results, best_model_name),
-        "prediction": save_prediction_comparison(predictions, y_test),
+        "predictions": save_prediction_comparison(predictions, y_test),
         "importance": save_feature_importance(importance, best_model_name),
     }
 
@@ -476,16 +487,18 @@ def create_report(df, results, best_model_name, x_train, x_test, charts, importa
         "따라서 Streamlit 앱에서는 이 모델을 최종 예측 모델로 사용하였다.",
     )
 
-    add_image_with_caption(
-        doc,
-        charts["prediction"],
-        "그림 4. 학습 모델별 실제값과 예측값 비교",
-        width=6.4,
-    )
+    for figure_index, (model_name, image_path) in enumerate(charts["predictions"].items(), start=4):
+        add_image_with_caption(
+            doc,
+            image_path,
+            f"그림 {figure_index}. {model_name} 실제값과 예측값 비교",
+            width=5.9,
+        )
+
     add_paragraph(
         doc,
-        "실제값과 예측값 비교 그래프에서 점들이 붉은 대각선에 가까울수록 예측이 정확하다고 볼 수 있다. "
-        "모델별 그래프를 함께 보면 단순 성능표뿐 아니라 예측값이 실제값을 얼마나 잘 따라가는지도 확인할 수 있다.",
+        "각 모델별 그래프에서 점들이 붉은 대각선에 가까울수록 실제 연비와 예측 연비가 비슷하다는 뜻이다. "
+        "모델을 한 장에 모아 보는 대신 각각 따로 제시하여 선형회귀, 의사결정나무, 랜덤 포레스트, KNN 회귀의 예측 경향을 더 쉽게 비교할 수 있도록 하였다.",
     )
 
     add_heading(doc, "6. 최종 모델 특성 영향 분석", 1)
@@ -502,7 +515,7 @@ def create_report(df, results, best_model_name, x_train, x_test, charts, importa
     add_image_with_caption(
         doc,
         charts["importance"],
-        "그림 5. 최종 모델의 특성 영향도",
+        "그림 8. 최종 모델의 특성 영향도",
     )
     add_paragraph(
         doc,
