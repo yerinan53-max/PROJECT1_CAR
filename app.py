@@ -57,181 +57,209 @@ def inject_custom_css():
         """
         <style>
         :root {
-            --car-blue: #2563eb;
-            --car-blue-dark: #1e3a8a;
-            --car-blue-soft: #dbeafe;
-            --car-ink: #172033;
-            --car-muted: #64748b;
-            --car-line: #d8e1ef;
-            --car-panel: #ffffff;
-            --car-bg: #f4f8ff;
+            --page-bg: #f4f7fb;
+            --ink: #162033;
+            --muted: #5d6f86;
+            --line: #dfe7f1;
+            --field-line: #cbd7e6;
+            --brand: #1769aa;
+            --brand-dark: #12588f;
+            --teal: #1f7a8c;
+            --hero-start: #154c79;
+            --hero-end: #1f7a8c;
         }
 
         .stApp {
-            background:
-                radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 34rem),
-                linear-gradient(180deg, #f8fbff 0%, #eef5ff 48%, #ffffff 100%);
-            color: var(--car-ink);
+            background: var(--page-bg);
+            color: var(--ink);
+            font-family: Arial, "Malgun Gothic", sans-serif;
         }
 
         .block-container {
-            max-width: 1180px;
-            padding-top: 2.2rem;
-            padding-bottom: 3rem;
+            max-width: 1120px;
+            padding-top: 40px;
+            padding-bottom: 48px;
         }
 
-        h1, h2, h3 {
-            color: var(--car-ink);
+        h1, h2, h3, p {
+            margin-top: 0;
             letter-spacing: 0;
         }
 
         h1 {
-            font-size: 2.65rem;
-            font-weight: 850;
-            margin-bottom: 0.35rem;
+            margin-bottom: 12px;
+            color: white;
+            font-size: 36px;
+            font-weight: 800;
         }
 
         h2, h3 {
+            color: var(--ink);
             font-weight: 800;
-        }
-
-        div[data-testid="stCaptionContainer"] {
-            color: var(--car-muted);
         }
 
         .hero-band {
-            padding: 1.35rem 1.5rem;
-            margin-bottom: 1.35rem;
-            border: 1px solid rgba(37, 99, 235, 0.16);
-            border-radius: 16px;
-            background:
-                linear-gradient(135deg, rgba(37, 99, 235, 0.13), rgba(14, 165, 233, 0.08)),
-                #ffffff;
-            box-shadow: 0 16px 38px rgba(30, 58, 138, 0.10);
+            margin-bottom: 24px;
+            padding: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--hero-start), var(--hero-end));
+            color: white;
         }
 
         .hero-eyebrow {
-            margin: 0 0 0.35rem;
-            color: var(--car-blue);
-            font-size: 0.82rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
+            margin: 0 0 8px;
+            color: #c9eff7;
+            font-size: 13px;
+            font-weight: 700;
             text-transform: uppercase;
         }
 
         .hero-copy {
-            max-width: 780px;
-            margin: 0;
-            color: #334155;
+            max-width: 760px;
+            margin-bottom: 0;
+            color: white;
             line-height: 1.7;
-            font-size: 1.02rem;
+            font-size: 16px;
         }
 
         div[data-testid="stForm"],
-        div[data-testid="stMetric"],
+        .result-card,
         div[data-testid="stDataFrame"],
         div[data-testid="stAlert"] {
-            border-radius: 14px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: white;
+            box-shadow: none;
         }
 
         div[data-testid="stForm"] {
-            padding: 1.05rem 1rem 1.15rem;
-            border: 1px solid var(--car-line);
-            background: rgba(255, 255, 255, 0.90);
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+            padding: 24px;
         }
 
         div[data-testid="stNumberInput"] label p {
-            color: #22314d;
-            font-weight: 720;
+            margin-bottom: 8px;
+            color: #4d5f78;
+            font-weight: 700;
         }
 
         div[data-testid="stNumberInput"] input {
-            border: 1px solid #d7e2f2;
-            border-radius: 10px;
-            background: #f8fbff;
+            border: 1px solid var(--field-line);
+            border-radius: 8px;
+            background: white;
+            font-size: 16px;
         }
 
         .stButton > button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px 18px;
             border: 0;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--car-blue), #0ea5e9);
+            border-radius: 8px;
+            background: var(--brand);
             color: white;
-            font-weight: 800;
-            padding: 0.55rem 1.05rem;
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.22);
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 700;
+            box-shadow: none;
         }
 
-        .stButton > button:hover {
+        .stButton > button:hover,
+        .stButton > button:focus {
             border: 0;
+            background: var(--brand-dark);
             color: white;
-            background: linear-gradient(135deg, var(--car-blue-dark), var(--car-blue));
-            transform: translateY(-1px);
-        }
-
-        div[data-testid="stMetric"] {
-            padding: 1rem 1.1rem;
-            border: 1px solid rgba(37, 99, 235, 0.16);
-            background: linear-gradient(180deg, #ffffff, #f7fbff);
-            box-shadow: 0 12px 28px rgba(30, 58, 138, 0.09);
-        }
-
-        div[data-testid="stMetricLabel"] p {
-            color: var(--car-muted);
-            font-weight: 750;
-        }
-
-        div[data-testid="stMetricValue"] {
-            color: var(--car-blue-dark);
-            font-weight: 850;
         }
 
         .result-card {
-            min-height: 236px;
-            padding: 1.2rem;
-            border: 1px solid rgba(37, 99, 235, 0.18);
-            border-radius: 14px;
-            background:
-                linear-gradient(145deg, rgba(37, 99, 235, 0.10), rgba(14, 165, 233, 0.07)),
-                #ffffff;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+            min-height: 100%;
+            padding: 24px;
         }
 
-        .result-card p {
-            color: var(--car-muted);
-            margin: 0.25rem 0 0;
+        .result-card h3 {
+            margin-bottom: 18px;
+            font-size: 22px;
         }
 
         .result-value {
-            margin: 0.15rem 0 0;
-            color: var(--car-blue-dark);
-            font-size: 3.1rem;
-            font-weight: 900;
+            display: block;
+            margin: 4px 0 0;
+            color: var(--ink);
+            font-size: 56px;
+            font-weight: 800;
             line-height: 1;
         }
 
         .result-unit {
-            color: var(--car-blue);
+            display: block;
+            margin-top: 4px;
+            color: var(--teal);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .result-card p {
+            margin-top: 18px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        div[data-testid="stMetric"] {
+            padding: 14px;
+            border-radius: 8px;
+            background: #f4f7fb;
+        }
+
+        div[data-testid="stMetricLabel"] p,
+        div[data-testid="stCaptionContainer"],
+        .stMarkdown p {
+            color: var(--muted);
+        }
+
+        div[data-testid="stMetricValue"] {
+            color: var(--ink);
             font-weight: 800;
         }
 
+        div[data-testid="stDataFrame"] {
+            overflow: hidden;
+        }
+
         button[data-baseweb="tab"] {
-            border-radius: 999px;
-            padding: 0.35rem 0.85rem;
+            color: #4d5f78;
+            font-weight: 700;
+            border-radius: 0;
         }
 
         button[data-baseweb="tab"][aria-selected="true"] {
-            background: var(--car-blue-soft);
-            color: var(--car-blue-dark);
+            color: var(--brand);
+            border-bottom-color: var(--brand);
         }
 
         div[data-testid="stHorizontalBlock"] {
-            gap: 1.05rem;
+            gap: 24px;
         }
 
         hr {
-            border-color: #d5e2f3;
-            margin: 1.5rem 0 1.1rem;
+            border-color: #dfe7f1;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 760px) {
+            .block-container {
+                padding: 24px 16px;
+            }
+
+            .hero-band {
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 30px;
+            }
+
+            .result-value {
+                font-size: 44px;
+            }
         }
         </style>
         """,
