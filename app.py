@@ -570,6 +570,13 @@ def predict_mpg(model, values):
     return round(float(model.predict(input_df)[0]), 2)
 
 
+def rerun_app():
+    if hasattr(st, "rerun"):
+        st.rerun()
+    else:
+        st.experimental_rerun()
+
+
 def render_prediction_form(model, db_error):
     st.subheader("자동차 정보 입력")
 
@@ -822,6 +829,7 @@ def main():
         prediction = render_prediction_form(model, db_error)
         if prediction is not None:
             st.session_state["last_prediction"] = prediction
+            rerun_app()
 
     with right:
         render_model_summary(metrics, model_results)
